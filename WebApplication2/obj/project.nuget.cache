@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "Qk+qiXaNjkY=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Vadim\\RiderProjects\\WebApplication2\\WebApplication2\\WebApplication2.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Vadim\\.nuget\\packages\\microsoft.extensions.ai\\10.5.1\\microsoft.extensions.ai.10.5.1.nupkg.sha512",
+    "C:\\Users\\Vadim\\.nuget\\packages\\microsoft.extensions.ai.abstractions\\10.5.1\\microsoft.extensions.ai.abstractions.10.5.1.nupkg.sha512",
+    "C:\\Users\\Vadim\\.nuget\\packages\\microsoft.extensions.ai.openai\\10.5.1\\microsoft.extensions.ai.openai.10.5.1.nupkg.sha512",
+    "C:\\Users\\Vadim\\.nuget\\packages\\openai\\2.10.0\\openai.2.10.0.nupkg.sha512",
+    "C:\\Users\\Vadim\\.nuget\\packages\\system.clientmodel\\1.10.0\\system.clientmodel.1.10.0.nupkg.sha512",
+    "C:\\Users\\Vadim\\.nuget\\packages\\system.memory.data\\10.0.3\\system.memory.data.10.0.3.nupkg.sha512",
+    "C:\\Users\\Vadim\\.nuget\\packages\\system.numerics.tensors\\10.0.6\\system.numerics.tensors.10.0.6.nupkg.sha512"
+  ],
+  "logs": []
+}
