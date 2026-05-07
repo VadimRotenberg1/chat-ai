@@ -4,6 +4,8 @@ public sealed class AiOptions
 {
     public const string SectionName = "Ai";
 
+    public string AgentName { get; set; } = "assistant";
+
     public OpenAIOptions OpenAI { get; set; } = new();
 
     public GroqOptions Groq { get; set; } = new();

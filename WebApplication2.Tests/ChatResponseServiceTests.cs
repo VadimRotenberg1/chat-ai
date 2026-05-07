@@ -1,10 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using WebApplication2.Contracts;
 using WebApplication2.Hubs;
+using WebApplication2.Options;
 using WebApplication2.Services;
 using Xunit;
 
@@ -42,7 +51,13 @@ public class ChatResponseServiceTests
             .BuildServiceProvider();
 
         var logger = new Mock<ILogger<ChatResponseService>>().Object;
-        var service = new ChatResponseService(mockHubContext.Object, serviceProvider, logger);
+        var mockEnvironment = new Mock<IWebHostEnvironment>();
+        mockEnvironment.Setup(m => m.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+
+        var mockAiOptions = new Mock<IOptions<AiOptions>>();
+        mockAiOptions.Setup(o => o.Value).Returns(new AiOptions { AgentName = "assistant" });
+
+        var service = new ChatResponseService(mockHubContext.Object, serviceProvider, mockEnvironment.Object, mockAiOptions.Object, logger);
 
         // Act
         await service.SendAnswerAsync(request, CancellationToken.None);
@@ -63,5 +78,65 @@ public class ChatResponseServiceTests
         mockClientProxy.Verify(
             c => c.SendCoreAsync(ChatClientEvents.AssistantCompleted, It.IsAny<object[]>(), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task SendAnswerAsync_UsesConfiguredAgentSkillsAsSystemPrompt()
+    {
+        // Arrange
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"webapp-skills-{Guid.NewGuid():N}");
+        var skillsDirectory = Path.Combine(tempRoot, "Agents", "assistant");
+        Directory.CreateDirectory(skillsDirectory);
+
+        var expectedPrompt = "Use the project-specific assistant skills.";
+        await File.WriteAllTextAsync(Path.Combine(skillsDirectory, "skills.md"), expectedPrompt);
+
+        try
+        {
+            var request = new ChatRequest("test-connection", "Hello", "test-conversation");
+
+            var mockClients = new Mock<IHubClients>();
+            var mockClientProxy = new Mock<ISingleClientProxy>();
+            mockClients.Setup(c => c.Client(request.ConnectionId)).Returns(mockClientProxy.Object);
+
+            var mockHubContext = new Mock<IHubContext<ChatHub>>();
+            mockHubContext.Setup(c => c.Clients).Returns(mockClients.Object);
+
+            IReadOnlyList<ChatMessage>? capturedMessages = null;
+            var mockChatClient = new Mock<IChatClient>();
+            mockChatClient
+                .Setup(c => c.GetStreamingResponseAsync(It.IsAny<IEnumerable<ChatMessage>>(), It.IsAny<ChatOptions>(), It.IsAny<CancellationToken>()))
+                .Callback<IEnumerable<ChatMessage>, ChatOptions, CancellationToken>((messages, _, _) => capturedMessages = messages.ToList())
+                .Returns(Array.Empty<ChatResponseUpdate>().ToAsyncEnumerable());
+
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton<IChatClient>(mockChatClient.Object)
+                .BuildServiceProvider();
+
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+            mockEnvironment.Setup(m => m.ContentRootPath).Returns(tempRoot);
+
+            var mockAiOptions = new Mock<IOptions<AiOptions>>();
+            mockAiOptions.Setup(o => o.Value).Returns(new AiOptions { AgentName = "assistant" });
+
+            var service = new ChatResponseService(
+                mockHubContext.Object,
+                serviceProvider,
+                mockEnvironment.Object,
+                mockAiOptions.Object,
+                new Mock<ILogger<ChatResponseService>>().Object);
+
+            // Act
+            await service.SendAnswerAsync(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(capturedMessages);
+            var systemMessage = Assert.Single(capturedMessages, message => message.Role == ChatRole.System);
+            Assert.Equal(expectedPrompt, systemMessage.Text);
+        }
+        finally
+        {
+            Directory.Delete(tempRoot, recursive: true);
+        }
     }
 }

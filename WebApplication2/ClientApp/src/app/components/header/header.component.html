@@ -1,0 +1,29 @@
+<header class="app-header">
+    <div class="header-content">
+        <div class="logo-section">
+            <span class="logo-icon">&#9679;</span>
+            <span class="app-title">AI Chat</span>
+        </div>
+        
+        <div class="user-section" *ngIf="isAuthenticated()">
+            <div class="user-info">
+                <span class="user-avatar">{{ getInitials(userName()) }}</span>
+                <span class="user-name">{{ userName() }}</span>
+            </div>
+            <button 
+                class="refresh-button" 
+                type="button" 
+                (click)="onRefresh()" 
+                title="Refresh user info"
+                aria-label="Refresh user info">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor">
+                    <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-37-56-93.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q81 0 145.5-47T714-420l62 46q-38 64-101.5 105T480-160Z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="user-section" *ngIf="!isAuthenticated()">
+            <span class="guest-label">Guest</span>
+        </div>
+    </div>
+</header>

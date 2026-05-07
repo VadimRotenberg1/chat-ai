@@ -1,13 +1,17 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Options;
 using WebApplication2.Contracts;
 using WebApplication2.Hubs;
+using WebApplication2.Options;
 
 namespace WebApplication2.Services;
 
 public sealed class ChatResponseService(
     IHubContext<ChatHub> chatHub,
     IServiceProvider services,
+    IWebHostEnvironment environment,
+    IOptions<AiOptions> aiOptions,
     ILogger<ChatResponseService> logger)
 {
     public async Task SendAnswerAsync(ChatRequest request, CancellationToken cancellationToken)
@@ -31,10 +35,29 @@ public sealed class ChatResponseService(
             return;
         }
 
-        var messages = new[]
+        var systemPrompt = "You are a concise, helpful assistant.";
+        var agentName = aiOptions.Value.AgentName ?? "assistant";
+        var skillsPath = Path.Combine(environment.ContentRootPath, "Agents", agentName, "skills.md");
+        if (File.Exists(skillsPath))
         {
-            new ChatMessage(ChatRole.System, "You are a concise, helpful assistant."),
-            new ChatMessage(ChatRole.User, request.Message.Trim())
+            try
+            {
+                var skills = await File.ReadAllTextAsync(skillsPath, cancellationToken);
+                if (!string.IsNullOrWhiteSpace(skills))
+                {
+                    systemPrompt = skills;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to read skills.md from {Path}", skillsPath);
+            }
+        }
+
+        var messages = new List<ChatMessage>
+        {
+            new(ChatRole.System, systemPrompt),
+            new(ChatRole.User, request.Message.Trim())
         };
 
         try

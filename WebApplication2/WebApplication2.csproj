@@ -12,4 +12,13 @@
       <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.5.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Agents\**\*.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <Target Name="BuildClientApp" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
+        <Exec Command="npm install" WorkingDirectory="ClientApp" />
+        <Exec Command="npm run build" WorkingDirectory="ClientApp" />
+    </Target>
+
 </Project>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "WebApplication2 Chat App"
+  short_description: "Work on this .NET Angular chat app"
+  default_prompt: "Use $webapplication2-chat-app to modify or troubleshoot the WebApplication2 chat application."
