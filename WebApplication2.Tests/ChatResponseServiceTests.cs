@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.AI;
@@ -15,7 +9,6 @@ using WebApplication2.Contracts;
 using WebApplication2.Hubs;
 using WebApplication2.Options;
 using WebApplication2.Services;
-using Xunit;
 
 namespace WebApplication2.Tests;
 

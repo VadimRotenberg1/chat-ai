@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(npx ng *)",
+      "Bash(\"/c/Program Files/dotnet/dotnet.exe\" build \"C:\\\\Users\\\\Vadim\\\\RiderProjects\\\\WebApplication2\\\\WebApplication2\\\\WebApplication2.csproj\" --no-incremental -nologo -p:UseAppHost=false)",
+      "Bash(\"/c/Program Files/dotnet/dotnet.exe\" build \"C:\\\\Users\\\\Vadim\\\\RiderProjects\\\\WebApplication2\\\\WebApplication2\\\\WebApplication2.csproj\" -o \"C:\\\\Users\\\\Vadim\\\\RiderProjects\\\\WebApplication2\\\\artifacts\\\\build-check\" -nologo)",
+      "Bash(\"/c/Program Files/dotnet/dotnet.exe\" build \"C:\\\\Users\\\\Vadim\\\\RiderProjects\\\\WebApplication2\\\\WebApplication2.Tests\\\\WebApplication2.Tests.csproj\" -o \"C:\\\\Users\\\\Vadim\\\\RiderProjects\\\\WebApplication2\\\\artifacts\\\\build-check-tests\" -nologo)"
+    ]
+  }
+}

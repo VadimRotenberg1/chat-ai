@@ -43,3 +43,5 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 bin/
+WebApplication2.Tests/obj/
+WebApplication2/obj/

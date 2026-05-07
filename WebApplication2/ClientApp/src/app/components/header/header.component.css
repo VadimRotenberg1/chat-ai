@@ -106,3 +106,21 @@
 .refresh-button:active {
     transform: rotate(180deg);
 }
+
+.logout-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    height: 36px;
+    padding: 0 0.9rem;
+    color: #e5e5e5;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+    background: rgba(248, 113, 113, 0.18);
+    border-color: rgba(248, 113, 113, 0.55);
+    color: #fecaca;
+}

@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
+import { ChatService } from '../../services/chat';
 
 @Component({
     selector: 'app-header',
@@ -10,12 +12,20 @@ import { UserService } from '../../services/user.service';
     styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+    private readonly auth = inject(AuthService);
+    private readonly chat = inject(ChatService);
+
     protected readonly userService = inject(UserService);
     protected readonly userName = this.userService.userName;
     protected readonly isAuthenticated = this.userService.isAuthenticated;
 
     protected onRefresh(): void {
         this.userService.refresh();
+    }
+
+    protected async onLogout(): Promise<void> {
+        await this.chat.disconnect();
+        this.auth.logout();
     }
 
     protected getInitials(name: string): string {
