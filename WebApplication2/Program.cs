@@ -123,39 +123,4 @@ app.MapGet("/api/user/info", (ClaimsPrincipal user, UserStore users) =>
 })
 .RequireAuthorization();
 
-app.MapPost("/api/chat", async (ChatRequest request, ChatResponseService chat, CancellationToken cancellationToken) =>
-{
-    var validationError = Validate(request);
-    if (validationError is not null)
-    {
-        return Results.BadRequest(new { error = validationError });
-    }
-
-    await chat.SendAnswerAsync(request, cancellationToken);
-    return Results.Accepted();
-})
-.RequireAuthorization();
-
 app.Run();
-
-static string? Validate(ChatRequest request)
-{
-    if (string.IsNullOrWhiteSpace(request.ConnectionId))
-    {
-        return "SignalR connectionId is required.";
-    }
-
-    if (string.IsNullOrWhiteSpace(request.ConversationId))
-    {
-        return "ConversationId is required.";
-    }
-
-    if (string.IsNullOrWhiteSpace(request.Message))
-    {
-        return "Message is required.";
-    }
-
-    return request.Message.Length > 8_000
-        ? "Message is too long. Keep it under 8,000 characters."
-        : null;
-}

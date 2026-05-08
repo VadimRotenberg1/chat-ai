@@ -74,7 +74,7 @@ var appRoutes = [
   },
   {
     path: "",
-    loadComponent: () => import("./chunk-ADBAE55B.js").then((m) => m.ChatComponent),
+    loadComponent: () => import("./chunk-3KXFWELU.js").then((m) => m.ChatComponent),
     canActivate: [authGuard]
   },
   { path: "**", redirectTo: "" }

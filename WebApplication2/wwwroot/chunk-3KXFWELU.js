@@ -2896,7 +2896,6 @@ function isLogger(logger) {
 
 // src/app/services/chat.ts
 var ChatService = class _ChatService {
-  http = inject(HttpClient);
   auth = inject(AuthService);
   connection = null;
   conversationId = crypto.randomUUID();
@@ -2980,13 +2979,12 @@ var ChatService = class _ChatService {
     this.messages.update((ms) => [...ms, { kind: "user", content: html, isHtml: true }]);
     this.isSending.set(true);
     try {
-      await this.http.post("/api/chat", {
-        connectionId: this.connection.connectionId,
+      await this.connection.invoke("SendMessage", {
         conversationId: this.conversationId,
         message: text
-      }).toPromise();
+      });
     } catch (error) {
-      this.messages.update((ms) => [...ms, { kind: "error", content: error.error?.error || "Request failed.", isHtml: false }]);
+      this.messages.update((ms) => [...ms, { kind: "error", content: error?.message || "Request failed.", isHtml: false }]);
       this.isSending.set(false);
     }
   }
@@ -3001,9 +2999,7 @@ var ChatService = class _ChatService {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChatService, [{
     type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
+    args: [{ providedIn: "root" }]
   }], () => [], null);
 })();
 
@@ -3382,4 +3378,4 @@ var ChatComponent = class _ChatComponent {
 export {
   ChatComponent
 };
-//# sourceMappingURL=chunk-ADBAE55B.js.map
+//# sourceMappingURL=chunk-3KXFWELU.js.map

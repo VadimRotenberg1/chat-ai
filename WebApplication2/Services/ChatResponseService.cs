@@ -2,22 +2,19 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using WebApplication2.Contracts;
-using WebApplication2.Hubs;
 using WebApplication2.Options;
 
 namespace WebApplication2.Services;
 
 public sealed class ChatResponseService(
-    IHubContext<ChatHub> chatHub,
     IServiceProvider services,
     IWebHostEnvironment environment,
     IOptions<AiOptions> aiOptions,
     ILogger<ChatResponseService> logger)
 {
-    public async Task SendAnswerAsync(ChatRequest request, CancellationToken cancellationToken)
+    public async Task SendAnswerAsync(IClientProxy client, ChatRequest request, CancellationToken cancellationToken)
     {
         var responseId = Guid.NewGuid().ToString("N");
-        var client = chatHub.Clients.Client(request.ConnectionId);
 
         await client.SendAsync(
             ChatClientEvents.AssistantStarted,

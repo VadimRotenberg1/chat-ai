@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using WebApplication2.Contracts;
-using WebApplication2.Hubs;
 using WebApplication2.Options;
 using WebApplication2.Services;
 
@@ -18,17 +17,11 @@ public class ChatResponseServiceTests
     public async Task SendAnswerAsync_StreamsResponsesToClient()
     {
         // Arrange
-        var connectionId = "test-connection";
         var conversationId = "test-conversation";
         var message = "Hello";
-        var request = new ChatRequest(connectionId, message, conversationId);
+        var request = new ChatRequest(message, conversationId);
 
-        var mockClients = new Mock<IHubClients>();
-        var mockClientProxy = new Mock<ISingleClientProxy>();
-        mockClients.Setup(c => c.Client(connectionId)).Returns(mockClientProxy.Object);
-
-        var mockHubContext = new Mock<IHubContext<ChatHub>>();
-        mockHubContext.Setup(c => c.Clients).Returns(mockClients.Object);
+        var mockClientProxy = new Mock<IClientProxy>();
 
         var mockChatClient = new Mock<IChatClient>();
         var chatUpdates = new[]
@@ -50,10 +43,10 @@ public class ChatResponseServiceTests
         var mockAiOptions = new Mock<IOptions<AiOptions>>();
         mockAiOptions.Setup(o => o.Value).Returns(new AiOptions { AgentName = "assistant" });
 
-        var service = new ChatResponseService(mockHubContext.Object, serviceProvider, mockEnvironment.Object, mockAiOptions.Object, logger);
+        var service = new ChatResponseService(serviceProvider, mockEnvironment.Object, mockAiOptions.Object, logger);
 
         // Act
-        await service.SendAnswerAsync(request, CancellationToken.None);
+        await service.SendAnswerAsync(mockClientProxy.Object, request, CancellationToken.None);
 
         // Assert
         mockClientProxy.Verify(
@@ -86,14 +79,9 @@ public class ChatResponseServiceTests
 
         try
         {
-            var request = new ChatRequest("test-connection", "Hello", "test-conversation");
+            var request = new ChatRequest("Hello", "test-conversation");
 
-            var mockClients = new Mock<IHubClients>();
-            var mockClientProxy = new Mock<ISingleClientProxy>();
-            mockClients.Setup(c => c.Client(request.ConnectionId)).Returns(mockClientProxy.Object);
-
-            var mockHubContext = new Mock<IHubContext<ChatHub>>();
-            mockHubContext.Setup(c => c.Clients).Returns(mockClients.Object);
+            var mockClientProxy = new Mock<IClientProxy>();
 
             IReadOnlyList<ChatMessage>? capturedMessages = null;
             var mockChatClient = new Mock<IChatClient>();
@@ -113,14 +101,13 @@ public class ChatResponseServiceTests
             mockAiOptions.Setup(o => o.Value).Returns(new AiOptions { AgentName = "assistant" });
 
             var service = new ChatResponseService(
-                mockHubContext.Object,
                 serviceProvider,
                 mockEnvironment.Object,
                 mockAiOptions.Object,
                 new Mock<ILogger<ChatResponseService>>().Object);
 
             // Act
-            await service.SendAnswerAsync(request, CancellationToken.None);
+            await service.SendAnswerAsync(mockClientProxy.Object, request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(capturedMessages);
